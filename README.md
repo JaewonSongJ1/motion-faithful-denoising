@@ -68,7 +68,7 @@ Qualitative comparisons on real captured 4D scans are shown in the supplementary
 - **💾 Data Sample (Subject A, Alembic cache)** — [Download from Google Drive](https://drive.google.com/file/d/17fW5Wv6yui9yA4fBviCcLQBa1ORGzxRS/view?usp=drive_link)
 - **🔗 ACM Digital Library** — [doi.org/10.1145/3799825.3818714](https://doi.org/10.1145/3799825.3818714)
 
-The data sample contains one registered, fixed-topology 4D facial scan sequence from our experiments, provided as an Alembic (`.abc`) cache. **Note:** this is the raw, *jittery* input sequence (before denoising) — the source data that motivates our method. It is shared so that other researchers can reproduce our results or benchmark their own denoising techniques on the same input.
+The data sample contains one registered, fixed-topology 4D facial scan sequence from our experiments, provided as an Alembic (`.abc`) cache. **Note:** this is the raw, *jittery* input sequence (before denoising) — the source data that motivates our method.
 
 ## Citation
 
