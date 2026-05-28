@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motion-Faithful Denoising for Dynamic Facial Scan Sequences</title>
+<meta name="description" content="SIGGRAPH 2026 Posters — Motion-Faithful Denoising for Dynamic Facial Scan Sequences. A motion-adaptive bilateral temporal filter for 4D facial scan denoising.">
+<meta property="og:title" content="Motion-Faithful Denoising for Dynamic Facial Scan Sequences">
+<meta property="og:description" content="SIGGRAPH 2026 Posters — A motion-adaptive bilateral temporal filter for 4D facial scan denoising.">
+<meta property="og:image" content="static/images/teaser.jpg">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans:wght@400;500;700&family=Castoro:ital@1&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+
+<style>
+  :root {
+    --ink: #363636;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --border: #e5e7eb;
+    --bg-soft: #f9fafb;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Noto Sans', sans-serif;
+    color: var(--ink);
+    background: #fff;
+    font-size: 16px;
+    line-height: 1.65;
+  }
+  h1, h2, h3, .title, .subtitle, .author-block, .publication-title {
+    font-family: 'Google Sans', sans-serif;
+  }
+  .hero { padding: 4rem 1.5rem 2rem; }
+  .publication-title {
+    font-weight: 700;
+    font-size: 2.4rem;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    color: var(--ink);
+  }
+  .publication-venue {
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.02em;
+  }
+  .publication-venue strong { color: var(--ink); }
+  .author-block {
+    font-size: 1.15rem;
+    margin: 0.25rem 0.75rem;
+    display: inline-block;
+  }
+  .author-block a { color: var(--ink); border-bottom: 1px dotted var(--muted); text-decoration: none; }
+  .author-block a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .author-block sup { font-size: 0.7em; color: var(--muted); }
+  .affiliations {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-top: 0.75rem;
+  }
+  .link-block {
+    display: inline-block;
+    margin: 0.3rem 0.25rem;
+  }
+  .link-block .button {
+    background: #1f2937;
+    color: #fff;
+    border: 0;
+    font-family: 'Google Sans', sans-serif;
+    font-weight: 500;
+    padding: 0.7rem 1.4rem;
+    border-radius: 999px;
+    transition: transform .15s ease, background .15s ease;
+  }
+  .link-block .button:hover {
+    background: var(--accent);
+    transform: translateY(-1px);
+    color: #fff;
+  }
+  .link-block .icon { margin-right: 0.45rem; }
+
+  .teaser {
+    max-width: 1100px;
+    margin: 1.5rem auto 0;
+    padding: 0 1rem;
+  }
+  .teaser img { width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+  .teaser .caption {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-top: 1rem;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  section.section { padding: 2.5rem 1.5rem; }
+  section.section.is-light { background: var(--bg-soft); }
+  .container.is-max-desktop { max-width: 980px; }
+
+  h2.title {
+    font-weight: 700;
+    font-size: 1.85rem;
+    margin-bottom: 1.5rem !important;
+    color: var(--ink);
+  }
+  .abstract-body, .content {
+    font-size: 1.05rem;
+    text-align: left;
+  }
+  .abstract-body strong { color: var(--ink); }
+
+  .video-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding-bottom: 56.25%;
+    height: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 6px 30px rgba(0,0,0,0.08);
+  }
+  .video-wrap iframe {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: 0;
+  }
+
+  table.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem auto 0.5rem;
+    font-size: 1rem;
+  }
+  table.results-table th, table.results-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  table.results-table th {
+    background: var(--bg-soft);
+    font-family: 'Google Sans', sans-serif;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  table.results-table td:first-child { text-align: left; font-weight: 500; }
+  table.results-table .hi { color: var(--accent); font-weight: 700; }
+  .table-note { color: var(--muted); font-size: 0.9rem; text-align: center; margin-top: 0.5rem; }
+
+  .download-list { list-style: none; padding: 0; margin: 0; }
+  .download-list li {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .download-list li:last-child { border-bottom: 0; }
+  .download-list .dl-icon {
+    width: 2.2rem; flex-shrink: 0;
+    font-size: 1.4rem; color: var(--accent);
+    text-align: center; padding-top: 0.15rem;
+  }
+  .download-list .dl-text { flex: 1; }
+  .download-list .dl-title { font-weight: 600; font-family: 'Google Sans', sans-serif; }
+  .download-list .dl-desc { color: var(--muted); font-size: 0.95rem; margin-top: 0.15rem; }
+  .download-list a { color: var(--accent); text-decoration: none; }
+  .download-list a:hover { text-decoration: underline; }
+  .data-note {
+    background: #fffbeb;
+    border-left: 3px solid #f59e0b;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.95rem;
+    margin-top: 1.25rem;
+    border-radius: 0 6px 6px 0;
+    color: #6b4f00;
+  }
+  .data-note strong { color: #92400e; }
+
+  .bibtex-wrap {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem 1.75rem;
+    font-family: 'Castoro', 'Courier New', monospace;
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin-top: 1rem;
+  }
+  .bibtex-wrap pre { background: transparent; color: inherit; padding: 0; margin: 0; font-family: inherit; }
+
+  footer.footer {
+    background: var(--bg-soft);
+    padding: 2.5rem 1.5rem;
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+  footer.footer a { color: var(--accent); text-decoration: none; }
+  footer.footer a:hover { text-decoration: underline; }
+  footer.footer .acknowledge { max-width: 880px; margin: 0 auto 1.25rem; }
+  footer.footer .license-line { max-width: 880px; margin: 0 auto; text-align: center; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+  @media (max-width: 768px) {
+    .publication-title { font-size: 1.7rem; }
+    .author-block { font-size: 1rem; display: block; margin: 0.15rem 0; }
+    .link-block { display: block; margin: 0.3rem auto; max-width: 280px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container is-max-desktop has-text-centered">
+    <div class="publication-venue">SIGGRAPH 2026 · Posters</div>
+    <h1 class="publication-title">Motion-Faithful Denoising for<br>Dynamic Facial Scan Sequences</h1>
+
+    <div class="authors">
+      <span class="author-block">
+        <a href="https://orcid.org/0009-0004-6081-7618">Jaewon Song</a>
+      </span>
+      <span class="author-block">
+        <a href="https://orcid.org/0009-0006-8562-0074">Minyeong Jeong</a>
+      </span>
+    </div>
+    <div class="affiliations">Dexter Studios, Seoul, Republic of Korea</div>
+
+    <div class="link-wrap" style="margin-top: 2rem;">
+      <span class="link-block">
+        <a href="https://drive.google.com/file/d/1ID2cVOe-SPvKwr3iUn5o9dFroo2txb2D/view?usp=drive_link" class="button" target="_blank" rel="noopener">
+          <span class="icon"><i class="fas fa-file-pdf"></i></span>
+          <span>Paper</span>
+        </a>
+      </span>
+      <span class="link-block">
+        <a href="https://doi.org/10.1145/3799825.3818714" class="button" target="_blank" rel="noopener">
+          <span class="icon"><i class="ai ai-acm"></i><i class="fas fa-book"></i></span>
+          <span>ACM DL</span>
+        </a>
+      </span>
+      <span class="link-block">
+        <a href="https://youtu.be/ygYoRAlBmio" class="button" target="_blank" rel="noopener">
+          <span class="icon"><i class="fab fa-youtube"></i></span>
+          <span>Video</span>
+        </a>
+      </span>
+      <span class="link-block">
+        <a href="https://drive.google.com/file/d/17fW5Wv6yui9yA4fBviCcLQBa1ORGzxRS/view?usp=drive_link" class="button" target="_blank" rel="noopener">
+          <span class="icon"><i class="fas fa-database"></i></span>
+          <span>Data Sample</span>
+        </a>
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- Teaser -->
+<div class="teaser">
+  <img src="static/images/teaser.jpg" alt="Comparative error heatmaps on a dynamic facial sequence">
+  <div class="caption">
+    <strong>Figure 1.</strong> Vertex-wise spatial error on a dynamic facial sequence (Subject A, frame 96).
+    (a) Ground truth. (b) Noisy input with simulated tracking jitter.
+    (c) Our motion-adaptive bilateral filter keeps error low (blue) across the face,
+    while uniform temporal (d) box and (e) Gaussian filters accumulate large errors (red)
+    around fast-moving regions. Colorbar unit: cm.
+  </div>
+</div>
+
+<!-- Abstract -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title has-text-centered">Abstract</h2>
+    <div class="abstract-body">
+      <p>
+        Registered dynamic facial scans, tracked via a template mesh, inherently suffer from
+        <strong>temporal tracking jitter</strong>—a spatially low-frequency but temporally high-frequency error
+        originating from both raw capture noise and registration inaccuracies. Existing spatial and spectral denoising
+        methods fail to address this specific domain mismatch. We present a <strong>motion-adaptive bilateral temporal filter</strong>
+        for fixed-topology 4D Alembic caches that explicitly targets this regime by modulating temporal window size and
+        spatial kernel shape with local motion magnitude. On four facial scan sequences with synthesized tracking jitter,
+        our method reduces temporal acceleration error by <strong>up to 76%</strong> over uniform temporal smoothers
+        while preserving rapid expressions and avoiding the &ldquo;mushiness&rdquo; of lag-inducing filters.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Video -->
+<section class="section is-light">
+  <div class="container is-max-desktop">
+    <h2 class="title has-text-centered">Video</h2>
+    <div class="video-wrap">
+      <iframe
+        src="https://www.youtube.com/embed/ygYoRAlBmio"
+        title="Motion-Faithful Denoising — Supplementary Video"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- Method -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title has-text-centered">Method</h2>
+    <div class="content">
+      <p>
+        Our framework applies a motion-adaptive bilateral temporal filter directly to registered, fixed-topology
+        geometry caches. The key insight is that tracking jitter is <strong>smooth in space but rapid in time</strong>,
+        so we denoise along the time axis and let local motion control the smoothing — erasing jitter in still regions
+        while keeping fast expressions sharp.
+      </p>
+      <p>The filter behavior is governed by per-frame motion magnitude:</p>
+      <ul>
+        <li><strong>Still regions</strong> → wider temporal window (<em>L</em> ≈ 11–15) for maximal jitter suppression.</li>
+        <li><strong>Fast motion</strong> → narrower window (<em>L</em> ≈ 5–7) with sharper spatial weighting to preserve expressions.</li>
+      </ul>
+      <p>
+        The method is deterministic, lightweight, and drops directly into existing VFX pipelines, using only per-frame
+        vertex coordinates with no optical flow required.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Results -->
+<section class="section is-light">
+  <div class="container is-max-desktop">
+    <h2 class="title has-text-centered">Results</h2>
+    <div class="content">
+      <p>
+        Evaluated on four sequences spanning different subjects and motion speeds (24 fps, ~22k vertices).
+        Our method consistently achieves the lowest spatial, velocity, and acceleration error in every case:
+      </p>
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>vs. Temporal Gaussian</th>
+            <th>vs. Temporal Box</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Spatial (vRMSE)</td>      <td class="hi">~70% ↓</td><td>up to ~85% ↓</td></tr>
+          <tr><td>Velocity (velRMSE)</td>   <td class="hi">~73% ↓</td><td>up to ~81% ↓</td></tr>
+          <tr><td>Acceleration (accelRMSE)</td><td class="hi">~73% ↓</td><td class="hi">up to 76% ↓</td></tr>
+        </tbody>
+      </table>
+      <div class="table-note">Reductions are averaged across all four sequences (lower is better).</div>
+    </div>
+  </div>
+</section>
+
+<!-- Downloads -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title has-text-centered">Downloads</h2>
+    <ul class="download-list">
+      <li>
+        <div class="dl-icon"><i class="fas fa-file-pdf"></i></div>
+        <div class="dl-text">
+          <div class="dl-title">Paper (PDF)</div>
+          <div class="dl-desc">
+            <a href="https://drive.google.com/file/d/1ID2cVOe-SPvKwr3iUn5o9dFroo2txb2D/view?usp=drive_link" target="_blank" rel="noopener">Download from Google Drive</a>
+            &nbsp;·&nbsp;
+            <a href="https://doi.org/10.1145/3799825.3818714" target="_blank" rel="noopener">ACM Digital Library</a>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="dl-icon"><i class="fab fa-youtube"></i></div>
+        <div class="dl-text">
+          <div class="dl-title">Supplementary Video</div>
+          <div class="dl-desc"><a href="https://youtu.be/ygYoRAlBmio" target="_blank" rel="noopener">Watch on YouTube</a></div>
+        </div>
+      </li>
+      <li>
+        <div class="dl-icon"><i class="fas fa-database"></i></div>
+        <div class="dl-text">
+          <div class="dl-title">Data Sample (Subject A, Alembic cache)</div>
+          <div class="dl-desc"><a href="https://drive.google.com/file/d/17fW5Wv6yui9yA4fBviCcLQBa1ORGzxRS/view?usp=drive_link" target="_blank" rel="noopener">Download from Google Drive</a></div>
+        </div>
+      </li>
+    </ul>
+    <div class="data-note">
+      <strong>Note on the data sample.</strong>
+      This is the <em>raw, jittery</em> input sequence (before denoising) — the source data that motivates our method.
+      It is provided as a registered, fixed-topology 4D facial scan in Alembic (.abc) format,
+      so other researchers can reproduce our results or benchmark their own denoising techniques on the same input.
+    </div>
+  </div>
+</section>
+
+<!-- BibTeX -->
+<section class="section is-light">
+  <div class="container is-max-desktop">
+    <h2 class="title has-text-centered">Citation</h2>
+    <div class="bibtex-wrap">
+<pre>@inproceedings{song2026motionfaithful,
+  author    = {Song, Jaewon and Jeong, Minyeong},
+  title     = {Motion-Faithful Denoising for Dynamic Facial Scan Sequences},
+  booktitle = {Special Interest Group on Computer Graphics and
+               Interactive Techniques Conference Posters (SIGGRAPH Posters '26)},
+  year      = {2026},
+  location  = {Los Angeles, CA, USA},
+  publisher = {ACM},
+  address   = {New York, NY, USA},
+  pages     = {3},
+  doi       = {10.1145/3799825.3818714},
+  url       = {https://doi.org/10.1145/3799825.3818714}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="acknowledge">
+    <strong style="color: var(--ink);">Acknowledgments.</strong>
+    We thank Jaeho Im for serving as the 4D sequence model and Yeonsoo Choi for assistance with mesh error visualization.
+    This research was supported by the Culture, Sports and Tourism R&D Program through the Korea Creative Content Agency
+    (KOCCA) grant funded by the Ministry of Culture, Sports and Tourism in 2025
+    (Project Name: <em>Development of automatic digital human creation technology based on historical data</em>,
+    Project Number: RS-2025-25459094).
+  </div>
+  <div class="license-line">
+    This work is licensed under a
+    <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">Creative Commons Attribution 4.0 International License</a>.
+    &nbsp;·&nbsp;
+    Page template inspired by <a href="https://nerfies.github.io/" target="_blank" rel="noopener">Nerfies</a>.
+  </div>
+</footer>
+
+</body>
+</html>
