@@ -53,7 +53,7 @@ Evaluated on four sequences spanning different subjects and motion speeds (24 fp
 | Velocity (velRMSE) | **~73%** ↓ | up to ~81% ↓ |
 | Acceleration (accelRMSE) | **~73%** ↓ | **up to 76%** ↓ |
 
-Qualitative comparisons on real captured 4D scans are shown in the supplementary video:
+Qualitative comparisons on real captured 4D scans are shown in the supplementary video(click the image to watch):
 
 <p align="center">
   <a href="https://youtu.be/ygYoRAlBmio">
